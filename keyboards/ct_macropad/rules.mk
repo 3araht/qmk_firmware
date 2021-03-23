@@ -23,3 +23,4 @@ RGB_MATRIX_DRIVER = WS2812  # 2021/01/23 added.
 BLUETOOTH_ENABLE = no       # Enable Bluetooth
 AUDIO_ENABLE = no           # Audio output
 MIDI_ENABLE = yes           # MIDI support
+COMBO_ENABLE = yes          # enable Combo input to change layer

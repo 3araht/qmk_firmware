@@ -176,3 +176,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // If not defined maximum  brightness is set to 255
 #    define RGB_MATRIX_MAXIMUM_BRIGHTNESS 120
 #endif
+
+#define COMBO_COUNT 1
+#define COMBO_TERM 300

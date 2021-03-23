@@ -19,24 +19,33 @@
 enum layer_names {
     _BASE,
     _WEB,
-    _COPY
+    _COPY,
+    _FN
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* Base */
     [_BASE] = LAYOUT_default( \
-        TO(_WEB),                                      \
+        MI_BENDU,                                      \
                           MI_Db_3,        MI_Eb_3,      \
-        MI_BENDU,   MI_C_3,        MI_D_3,     MI_E_3  \
+        MI_BENDD,   MI_C_3,        MI_D_3,     MI_E_3  \
     ),
     [_WEB] = LAYOUT_default( \
-        TO(_COPY),                                    \
+        TO(_FN),                                    \
                            LGUI(KC_MINS), LGUI(KC_EQL),      \
         LGUI(KC_N), LGUI(KC_LEFT), LGUI(KC_R), LGUI(KC_RIGHT)  \
     ),
     [_COPY] = LAYOUT_default( \
-        TO(_BASE),                                         \
+        TO(_FN),                                         \
                            LGUI(KC_A),    LGUI(KC_F),        \
         LGUI(KC_Z), LGUI(KC_X),    LGUI(KC_C), LGUI(KC_V)  \
+    ),
+    [_FN] = LAYOUT_default( \
+        _______,                                         \
+                           XXXXXXX,    XXXXXXX,        \
+        _______, TO(_BASE),    TO(_WEB),       TO(_COPY)  \
     )
 };
+
+const uint16_t PROGMEM test_combo[] = {MI_BENDU, MI_BENDD, COMBO_END};
+combo_t key_combos[COMBO_COUNT] = {COMBO(test_combo, TO(_FN))};
