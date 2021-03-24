@@ -31,21 +31,34 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         MI_BENDD,   MI_C_3,        MI_D_3,     MI_E_3  \
     ),
     [_WEB] = LAYOUT_default( \
-        TO(_FN),                                    \
+        LGUI(KC_T),                                    \
                            LGUI(KC_MINS), LGUI(KC_EQL),      \
         LGUI(KC_N), LGUI(KC_LEFT), LGUI(KC_R), LGUI(KC_RIGHT)  \
     ),
     [_COPY] = LAYOUT_default( \
-        TO(_FN),                                         \
+        LGUI(KC_O),                                         \
                            LGUI(KC_A),    LGUI(KC_F),        \
         LGUI(KC_Z), LGUI(KC_X),    LGUI(KC_C), LGUI(KC_V)  \
     ),
     [_FN] = LAYOUT_default( \
         _______,                                         \
-                           XXXXXXX,    XXXXXXX,        \
+                           RGB_MOD,    RGB_TOG,        \
         _______, TO(_BASE),    TO(_WEB),       TO(_COPY)  \
     )
 };
 
-const uint16_t PROGMEM test_combo[] = {MI_BENDU, MI_BENDD, COMBO_END};
-combo_t key_combos[COMBO_COUNT] = {COMBO(test_combo, TO(_FN))};
+enum combos {
+  BASE_FN,
+  WEB_FN,
+  COPY_FN
+};
+
+const uint16_t PROGMEM base_combo[] = {MI_BENDU,   MI_BENDD,   COMBO_END};
+const uint16_t PROGMEM web_combo[]  = {LGUI(KC_T), LGUI(KC_N), COMBO_END};
+const uint16_t PROGMEM copy_combo[] = {LGUI(KC_O), LGUI(KC_Z), COMBO_END};
+
+combo_t key_combos[COMBO_COUNT] = {
+  [BASE_FN] = COMBO(base_combo, MO(_FN)),
+  [WEB_FN]  = COMBO(web_combo,  MO(_FN)),
+  [COPY_FN] = COMBO(copy_combo, MO(_FN))
+};
