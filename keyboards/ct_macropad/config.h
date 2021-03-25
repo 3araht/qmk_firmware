@@ -179,3 +179,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define COMBO_COUNT 3
 #define COMBO_TERM 300
+#define COMBO_ALLOW_ACTION_KEYS
