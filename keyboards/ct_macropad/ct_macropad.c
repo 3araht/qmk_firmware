@@ -20,7 +20,7 @@
 
 led_config_t g_led_config = {
     {
-        { 6, 0, 2, 4, 3, 1, 5, NO_LED, NO_LED, NO_LED, NO_LED, NO_LED }
+        { 1, 5, 2, 4, 3, 6, 0, NO_LED, NO_LED, NO_LED, NO_LED, NO_LED }
     }, {
         {   0, 64 }, {  75, 64 }, { 150,  64 }, { 224, 64 }, { 187,  32 }, {  113,  32 }, {   0,    0 }
     }, {
