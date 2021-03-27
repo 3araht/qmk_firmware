@@ -31,12 +31,17 @@ enum layer_names {
     _FN
 };
 
+enum custom_keycodes {
+    BASEUP = SAFE_RANGE,
+    BASEDN
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* Base */
     [_BASE] = LAYOUT_macropad( \
-        MI_BENDU,   MI_C_3, MI_Db_3, MI_D_3, MI_Eb_3, MI_E_3, \
+        BASEUP,   MI_C_3, MI_Db_3, MI_D_3, MI_Eb_3, MI_E_3, \
                             MI_Db_3,         MI_Eb_3,         \
-        MI_BENDD,   MI_C_3,          MI_D_3,          MI_E_3  \
+        BASEDN,   MI_C_3,          MI_D_3,          MI_E_3  \
     ),
     // https://osxdaily.com/2012/04/03/safari-keyboard-shortcuts/
     [_WEB] = LAYOUT_macropad( \
@@ -54,7 +59,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_FN] = LAYOUT_macropad( \
         _______, RGB_VAD, RGB_VAI, RGB_SPD, RGB_SPI, EEP_RST, \
                            RGB_MOD,    RGB_TOG,        \
-        _______, TO(_BASE),    TO(_WEB),       TO(_COPY)  \
+        _______, DF(_BASE),    DF(_WEB),       DF(_COPY)  \
     )
 };
 
@@ -64,12 +69,45 @@ enum combos {
   COPY_FN
 };
 
-const uint16_t PROGMEM base_combo[] = {MI_BENDU,   MI_BENDD,   COMBO_END};
+const uint16_t PROGMEM base_combo[] = {BASEUP,     BASEDN,   COMBO_END};
 const uint16_t PROGMEM web_combo[]  = {LGUI(KC_T), LGUI(KC_N), COMBO_END};
 const uint16_t PROGMEM copy_combo[] = {LGUI(KC_O), LGUI(KC_Z), COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
-  [BASE_FN] = COMBO(base_combo, MO(_FN)),
-  [WEB_FN]  = COMBO(web_combo,  MO(_FN)),
-  [COPY_FN] = COMBO(copy_combo, MO(_FN))
+  [BASE_FN] = COMBO_ACTION(base_combo),
+  [WEB_FN]  = COMBO_ACTION(web_combo),
+  [COPY_FN] = COMBO_ACTION(copy_combo)
 };
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+    switch(combo_index) {
+        case BASE_FN:
+        case WEB_FN:
+        case COPY_FN:
+            if (pressed) {
+                default_layer_set(1UL << _FN);
+            }
+            break;
+    }
+}
+
+
+void keyboard_post_init_user(void) {
+    default_layer_set(1UL << _BASE);
+#   ifdef RGB_MATRIX_ENABLE
+    rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_REACTIVE_SIMPLE);
+    rgb_matrix_sethsv_noeeprom(HSV_GOLDENROD);
+#   endif
+};
+
+bool process_record_user(uint16_t keycode, keyrecord_t* record) {
+    switch (keycode) {
+        case BASEUP:
+            process_midi(MI_BENDU, record);
+            break;
+        case BASEDN:
+            process_midi(MI_BENDD, record);
+            break;
+    }
+    return true;
+}

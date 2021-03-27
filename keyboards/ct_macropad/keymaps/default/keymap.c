@@ -83,6 +83,11 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 
 void keyboard_post_init_user(void) {
     default_layer_set(1UL << _BASE);
+#   ifdef RGB_MATRIX_ENABLE
+    rgb_matrix_mode_noeeprom(RGB_MATRIX_BREATHING);
+    // rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_REACTIVE_SIMPLE);
+    rgb_matrix_sethsv_noeeprom(HSV_GOLDENROD);
+#   endif
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
