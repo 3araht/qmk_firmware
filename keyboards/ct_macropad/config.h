@@ -177,6 +177,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    define RGB_MATRIX_MAXIMUM_BRIGHTNESS 120
 #endif
 
-#define COMBO_COUNT 3
+#define COMBO_COUNT 4
 #define COMBO_TERM 300
 #define COMBO_ALLOW_ACTION_KEYS
