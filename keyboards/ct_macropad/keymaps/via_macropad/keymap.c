@@ -24,7 +24,9 @@
 #define WEBUP LGUI(KC_T)
 #define WEBDN LGUI(KC_N)
 
-// #define COPY_LAYER_ENABLE
+#ifndef VIA_ENABLE
+#    define COPY_LAYER_ENABLE
+#endif
 
 #ifdef COPY_LAYER_ENABLE
 #    define COPYUP LGUI(KC_O)
@@ -95,15 +97,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // Somehow neither TO/TG worked. DF used.
 #ifdef COPY_LAYER_ENABLE
     [_FN] = LAYOUT_macropad( \
-        DF(_MEET), RGB_VAD, RGB_VAI, RGB_SPD,  RGB_SPI, EEP_RST,  \
-                            RGB_MOD,           RGB_TOG,           \
-        _______, DF(_BASE),          DF(_WEB),          DF(_COPY) \
+        RGB_MOD,   RGB_TOG,  RGB_VAD, RGB_VAI,   RGB_SPD, RGB_SPI,  \
+                             RGB_SAD,            RGB_SAI,           \
+        DF(_BASE), DF(_WEB),          DF(_COPY),          DF(_MEET) \
     )
 #else
     [_FN] = LAYOUT_macropad( \
-        DF(_MEET), RGB_VAD, RGB_VAI, RGB_SPD,  RGB_SPI, EEP_RST,  \
-                            RGB_MOD,           RGB_TOG,           \
-        _______, DF(_BASE),          DF(_WEB),          XXXXXXX \
+        RGB_MOD,   RGB_TOG,  RGB_VAD, RGB_VAI,   RGB_SPD, RGB_SPI,  \
+                             RGB_SAD,            RGB_SAI,           \
+        DF(_BASE), DF(_WEB),          RGB_HUI,            DF(_MEET) \
     )
 #endif
 };

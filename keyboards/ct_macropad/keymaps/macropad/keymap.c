@@ -71,9 +71,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     // Somehow neither TO/TG worked. DF used.
     [_FN] = LAYOUT_macropad( \
-        DF(_MEET), RGB_VAD, RGB_VAI, RGB_SPD,  RGB_SPI, EEP_RST,  \
-                            RGB_MOD,           RGB_TOG,           \
-        _______, DF(_BASE),          DF(_WEB),          DF(_COPY) \
+        RGB_MOD,   RGB_TOG,  RGB_VAD, RGB_VAI,   RGB_SPD, RGB_SPI,  \
+                             RGB_SAD,            RGB_SAI,           \
+        DF(_BASE), DF(_WEB),          DF(_COPY),          DF(_MEET) \
     )
 };
 

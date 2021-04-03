@@ -15,11 +15,29 @@
  */
 #include QMK_KEYBOARD_H
 
+#define WEBUP LGUI(KC_T)
+#define WEBDN LGUI(KC_N)
+
+#ifndef VIA_ENABLE
+#    define COPY_LAYER_ENABLE
+#endif
+
+#ifdef COPY_LAYER_ENABLE
+#    define COPYUP LGUI(KC_O)
+#    define COPYDN LGUI(KC_Z)
+#endif
+
+#define MEETUP C(S(KC_M))
+#define MEETDN C(KC_F)
+
 // Defines names for use in layer keycodes and the keymap
 enum layer_names {
     _BASE,
     _WEB,
+#ifdef COPY_LAYER_ENABLE
     _COPY,
+#endif
+    _MEET,
     _FN
 };
 
@@ -36,36 +54,58 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         BASEDN,   MI_C_3,        MI_D_3,     MI_E_3  \
     ),
     [_WEB] = LAYOUT_default( \
-        LGUI(KC_T),                                    \
-                           LGUI(KC_MINS), LGUI(KC_EQL),      \
-        LGUI(KC_N), LGUI(KC_LEFT), LGUI(KC_R), LGUI(KC_RIGHT)  \
+        WEBUP,                                    \
+                              LGUI(KC_MINS),               LGUI(KC_EQL),                   \
+        WEBDN, LGUI(KC_LEFT),                LGUI(KC_R),                 LGUI(KC_RIGHT)    \
     ),
+#ifdef COPY_LAYER_ENABLE
+// Basic shortcuts
+// https://support.apple.com/en-us/HT201236
     [_COPY] = LAYOUT_default( \
-        LGUI(KC_O),                                         \
-                           LGUI(KC_A),    LGUI(KC_F),        \
-        LGUI(KC_Z), LGUI(KC_X),    LGUI(KC_C), LGUI(KC_V)  \
+        COPYUP,                                                            \
+                            LGUI(KC_A),             LGUI(KC_F),            \
+        COPYDN, LGUI(KC_X),             LGUI(KC_C),             LGUI(KC_V) \
     ),
+#endif
+    // Shortcuts for meetings
+    // Used for OBS, Teams, etc.
+    [_MEET] = LAYOUT_default( \
+        MEETUP,                                                              \
+                            LSA(KC_F2),             LSA(KC_F4),              \
+        MEETDN, LSA(KC_F1),             LSA(KC_F3),             LSA(KC_F5)   \
+    ),
+#ifdef COPY_LAYER_ENABLE
     [_FN] = LAYOUT_default( \
-        _______,                                         \
-                           RGB_MOD,    RGB_TOG,        \
-        _______, DF(_BASE),    DF(_WEB),       DF(_COPY)  \
+        RGB_MOD,                                         \
+                           RGB_TOG,             RGB_HUI,            \
+        DF(_BASE), DF(_WEB),          DF(_COPY),          DF(_MEET) \
     )
+#else
+    [_FN] = LAYOUT_default( \
+        RGB_MOD,                                         \
+                           RGB_TOG,             RGB_HUI,            \
+        DF(_BASE), DF(_WEB),          RGB_HUI,            DF(_MEET) \
+    )
+#endif
 };
 
 enum combos {
   BASE_FN,
   WEB_FN,
-  COPY_FN
+  COPY_FN,
+  MEET_FN
 };
 
-const uint16_t PROGMEM base_combo[] = {BASEUP,     BASEDN,     COMBO_END};
-const uint16_t PROGMEM web_combo[]  = {LGUI(KC_T), LGUI(KC_N), COMBO_END};
-const uint16_t PROGMEM copy_combo[] = {LGUI(KC_O), LGUI(KC_Z), COMBO_END};
+const uint16_t PROGMEM base_combo[] = {BASEUP, BASEDN, COMBO_END};
+const uint16_t PROGMEM web_combo[]  = {WEBUP,  WEBDN,  COMBO_END};
+const uint16_t PROGMEM copy_combo[] = {COPYUP, COPYDN, COMBO_END};
+const uint16_t PROGMEM meet_combo[] = {MEETUP, MEETDN, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
   [BASE_FN] = COMBO_ACTION(base_combo),
   [WEB_FN]  = COMBO_ACTION(web_combo),
-  [COPY_FN] = COMBO_ACTION(copy_combo)
+  [COPY_FN] = COMBO_ACTION(copy_combo),
+  [MEET_FN] = COMBO_ACTION(meet_combo)
 };
 
 void process_combo_event(uint16_t combo_index, bool pressed) {
@@ -73,6 +113,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         case BASE_FN:
         case WEB_FN:
         case COPY_FN:
+        case MEET_FN:
             if (pressed) {
                 default_layer_set(1UL << _FN);
             }
