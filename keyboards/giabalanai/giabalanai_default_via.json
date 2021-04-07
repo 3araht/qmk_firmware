@@ -2,7 +2,7 @@
   "name": "giabalanai",
   "vendorId": "0xFEED",
   "productId": "0xF4B0",
-  "lighting": "qmk_rgblight",
+  "lighting": "none",
   "matrix": { "rows": 12, "cols": 10 },
   "layouts": {
     "keymap": [
