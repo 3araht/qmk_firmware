@@ -24,9 +24,7 @@
 #define WEBUP LGUI(KC_T)
 #define WEBDN LGUI(KC_N)
 
-#ifndef VIA_ENABLE
-#    define COPY_LAYER_ENABLE
-#endif
+#define COPY_LAYER_ENABLE
 
 #ifdef COPY_LAYER_ENABLE
 #    define COPYUP LGUI(KC_O)
