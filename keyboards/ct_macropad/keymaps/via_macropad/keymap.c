@@ -23,14 +23,8 @@
 
 #define WEBUP LGUI(KC_T)
 #define WEBDN LGUI(KC_N)
-
-#define COPY_LAYER_ENABLE
-
-#ifdef COPY_LAYER_ENABLE
-#    define COPYUP LGUI(KC_O)
-#    define COPYDN LGUI(KC_Z)
-#endif
-
+#define COPYUP LGUI(KC_O)
+#define COPYDN LGUI(KC_Z)
 #define MEETUP C(S(KC_M))
 #define MEETDN C(KC_F)
 
@@ -38,9 +32,7 @@
 enum layer_names {
     _BASE,
     _WEB,
-#ifdef COPY_LAYER_ENABLE
     _COPY,
-#endif
     _MEET,
     _FN
 };
@@ -53,84 +45,68 @@ enum custom_keycodes {
 #else
 #   define BASEUP KC_A
 #   define BASEDN KC_I
-#endif
+#endif  // MIDI_ENABLE
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* Base */
 #ifdef MIDI_ENABLE
-    [_BASE] = LAYOUT_macropad( \
+    [_BASE] = LAYOUT_macropad15( \
         BASEUP,   MI_C_3, MI_Db_3, MI_D_3, MI_Eb_3, MI_E_3, \
                           MI_Db_3,         MI_Eb_3,         \
         BASEDN,   MI_C_3,          MI_D_3,          MI_E_3  \
     ),
 #else
-    [_BASE] = LAYOUT_macropad( \
+    [_BASE] = LAYOUT_macropad15( \
         BASEUP,   KC_B, KC_C, KC_D, KC_E, KC_F, \
                           KC_G,         KC_H,         \
         BASEDN,   KC_J,          KC_K,          KC_L  \
     ),
-#endif
+#endif  // MIDI_ENABLE
     // https://osxdaily.com/2012/04/03/safari-keyboard-shortcuts/
-    [_WEB] = LAYOUT_macropad( \
+    [_WEB] = LAYOUT_macropad15( \
         WEBUP, LGUI(KC_L),    RCS(KC_TAB),   LCTL(KC_TAB), S(KC_SPC),    KC_SPC,           \
                               LGUI(KC_MINS),               LGUI(KC_EQL),                   \
         WEBDN, LGUI(KC_LEFT),                LGUI(KC_R),                 LGUI(KC_RIGHT)    \
     ),
-#ifdef COPY_LAYER_ENABLE
     // Basic shortcuts
     // https://support.apple.com/en-us/HT201236
-    [_COPY] = LAYOUT_macropad( \
+    [_COPY] = LAYOUT_macropad15( \
         COPYUP, SPOTLGT,    CHARACT,    TOGFSCR,    SCRSHOT,    SCRLOCK,   \
                             LGUI(KC_A),             LGUI(KC_F),            \
         COPYDN, LGUI(KC_X),             LGUI(KC_C),             LGUI(KC_V) \
     ),
-#endif
     // Shortcuts for meetings
     // Used for OBS, Teams, etc.
-    [_MEET] = LAYOUT_macropad( \
+    [_MEET] = LAYOUT_macropad15( \
         MEETUP, LSA(KC_F6), LSA(KC_F7), LSA(KC_F8), LSA(KC_F9), LSA(KC_F10), \
                             LSA(KC_F2),             LSA(KC_F4),              \
         MEETDN, LSA(KC_F1),             LSA(KC_F3),             LSA(KC_F5)   \
     ),
     // Somehow neither TO/TG worked. DF used.
-#ifdef COPY_LAYER_ENABLE
-    [_FN] = LAYOUT_macropad( \
+    [_FN] = LAYOUT_macropad15( \
         RGB_MOD,   RGB_TOG,  RGB_VAD, RGB_VAI,   RGB_SPD, RGB_SPI,  \
                              RGB_SAD,            RGB_SAI,           \
         DF(_BASE), DF(_WEB),          DF(_COPY),          DF(_MEET) \
     )
-#else
-    [_FN] = LAYOUT_macropad( \
-        RGB_MOD,   RGB_TOG,  RGB_VAD, RGB_VAI,   RGB_SPD, RGB_SPI,  \
-                             RGB_SAD,            RGB_SAI,           \
-        DF(_BASE), DF(_WEB),          RGB_HUI,            DF(_MEET) \
-    )
-#endif
 };
 
 #ifdef COMBO_ENABLE
 enum combos {
   BASE_FN,
   WEB_FN,
-#ifdef COPY_LAYER_ENABLE
   COPY_FN,
-#endif
   MEET_FN
 };
 
 const uint16_t PROGMEM base_combo[] = {BASEUP, BASEDN, COMBO_END};
 const uint16_t PROGMEM web_combo[]  = {WEBUP,  WEBDN,  COMBO_END};
-#ifdef COPY_LAYER_ENABLE
 const uint16_t PROGMEM copy_combo[] = {COPYUP, COPYDN, COMBO_END};
-#endif
 const uint16_t PROGMEM meet_combo[] = {MEETUP, MEETDN, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
   [BASE_FN] = COMBO_ACTION(base_combo),
   [WEB_FN]  = COMBO_ACTION(web_combo),
-#ifdef COPY_LAYER_ENABLE
   [COPY_FN] = COMBO_ACTION(copy_combo),
-#endif
   [MEET_FN] = COMBO_ACTION(meet_combo)
 };
 
@@ -138,9 +114,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
     switch(combo_index) {
         case BASE_FN:
         case WEB_FN:
-#ifdef COPY_LAYER_ENABLE
         case COPY_FN:
-#endif
         case MEET_FN:
             if (pressed) {
                 default_layer_set(1UL << _FN);
@@ -148,10 +122,10 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
             break;
     }
 }
-#endif
+#endif  //  COMBO_ENABLE
 
 void keyboard_post_init_user(void) {
-    // default_layer_set(1UL << _BASE);  // this is not necessary. it returns to _BASE anyway, somehow.
+    // default_layer_set(1UL << _BASE);  // this is not necessary. it returns to _BASE anyway.
 #   ifdef RGB_MATRIX_ENABLE
     rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_REACTIVE_SIMPLE);
     rgb_matrix_sethsv_noeeprom(HSV_GOLDENROD);
@@ -172,4 +146,4 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
     }
     return true;
 }
-#endif
+#endif  // MIDI_ENABLE

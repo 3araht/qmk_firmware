@@ -1,0 +1,27 @@
+{
+  "name": "ct_macropad",
+  "vendorId": "0xFEED",
+  "productId": "0xF4B1",
+  "lighting": "none",
+  "matrix": { "rows": 1, "cols": 12},
+  "layouts": {
+    "keymap": [
+      [
+        "0,5"
+      ],
+      [
+        {
+          "x": 1.5
+        },
+        "0,1",
+        "0,3"
+      ],
+      [
+        "0,6",
+        "0,0",
+        "0,2",
+        "0,4"
+      ]
+    ]
+  }
+}

@@ -34,7 +34,7 @@
      { k01, k02, k03, k04, k05, k06, k07 }\
    }
 
-#define LAYOUT_macropad( \
+#define LAYOUT_macropad15( \
   k06,   k11, k12, k13, k14, k15, \
               k02,      k04, \
   k07,   k01,      k03,      k05 ) {\

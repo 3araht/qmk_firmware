@@ -37,46 +37,60 @@ enum layer_names {
     _FN
 };
 
+#ifdef MIDI_ENABLE
 enum custom_keycodes {
     BASEUP = SAFE_RANGE,
     BASEDN
 };
+#else
+#   define BASEUP KC_A
+#   define BASEDN KC_I
+#endif  // MIDI_ENABLE
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* Base */
-    [_BASE] = LAYOUT_macropad( \
+#ifdef MIDI_ENABLE
+    [_BASE] = LAYOUT_macropad15( \
         BASEUP,   MI_C_3, MI_Db_3, MI_D_3, MI_Eb_3, MI_E_3, \
                           MI_Db_3,         MI_Eb_3,         \
         BASEDN,   MI_C_3,          MI_D_3,          MI_E_3  \
     ),
+#else
+    [_BASE] = LAYOUT_macropad15( \
+        BASEUP,   KC_B, KC_C, KC_D, KC_E, KC_F, \
+                          KC_G,         KC_H,         \
+        BASEDN,   KC_J,          KC_K,          KC_L  \
+    ),
+#endif  // MIDI_ENABLE
     // https://osxdaily.com/2012/04/03/safari-keyboard-shortcuts/
-    [_WEB] = LAYOUT_macropad( \
+    [_WEB] = LAYOUT_macropad15( \
         WEBUP, LGUI(KC_L),    RCS(KC_TAB),   LCTL(KC_TAB), S(KC_SPC),    KC_SPC,           \
                               LGUI(KC_MINS),               LGUI(KC_EQL),                   \
         WEBDN, LGUI(KC_LEFT),                LGUI(KC_R),                 LGUI(KC_RIGHT)    \
     ),
     // Basic shortcuts
     // https://support.apple.com/en-us/HT201236
-    [_COPY] = LAYOUT_macropad( \
+    [_COPY] = LAYOUT_macropad15( \
         COPYUP, SPOTLGT,    CHARACT,    TOGFSCR,    SCRSHOT,    SCRLOCK,   \
                             LGUI(KC_A),             LGUI(KC_F),            \
         COPYDN, LGUI(KC_X),             LGUI(KC_C),             LGUI(KC_V) \
     ),
     // Shortcuts for meetings
     // Used for OBS, Teams, etc.
-    [_MEET] = LAYOUT_macropad( \
+    [_MEET] = LAYOUT_macropad15( \
         MEETUP, LSA(KC_F6), LSA(KC_F7), LSA(KC_F8), LSA(KC_F9), LSA(KC_F10), \
                             LSA(KC_F2),             LSA(KC_F4),              \
         MEETDN, LSA(KC_F1),             LSA(KC_F3),             LSA(KC_F5)   \
     ),
     // Somehow neither TO/TG worked. DF used.
-    [_FN] = LAYOUT_macropad( \
+    [_FN] = LAYOUT_macropad15( \
         RGB_MOD,   RGB_TOG,  RGB_VAD, RGB_VAI,   RGB_SPD, RGB_SPI,  \
                              RGB_SAD,            RGB_SAI,           \
         DF(_BASE), DF(_WEB),          DF(_COPY),          DF(_MEET) \
     )
 };
 
+#ifdef COMBO_ENABLE
 enum combos {
   BASE_FN,
   WEB_FN,
@@ -108,16 +122,17 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
             break;
     }
 }
-
+#endif  //  COMBO_ENABLE
 
 void keyboard_post_init_user(void) {
-    // default_layer_set(1UL << _BASE);  // this is not necessary. it returns to _BASE anyway, somehow.
+    // default_layer_set(1UL << _BASE);  // this is not necessary. it returns to _BASE anyway.
 #   ifdef RGB_MATRIX_ENABLE
     rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_REACTIVE_SIMPLE);
     rgb_matrix_sethsv_noeeprom(HSV_GOLDENROD);
 #   endif
 };
 
+#ifdef MIDI_ENABLE
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
     switch (keycode) {
         case BASEUP:
@@ -131,3 +146,4 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
     }
     return true;
 }
+#endif  // MIDI_ENABLE
