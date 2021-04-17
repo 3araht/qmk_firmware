@@ -1,1 +1,1 @@
-# The default keymap for chromatonemini
+# The LED enabled, customized keymap for chromatonemini

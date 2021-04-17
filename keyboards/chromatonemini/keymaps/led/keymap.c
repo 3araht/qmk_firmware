@@ -35,6 +35,9 @@ enum layer_names {
 #define DEFAULT_SCALE_COL 0
 static uint8_t scale_indicator_col = DEFAULT_SCALE_COL;
 
+//  use led indicator or not.
+static bool led_indicator_enable = true;
+
 // Defines names for use in _FN layer to specify which column to be used to turn on the LEDs.
 // use this with led_fn_indicator[37][3], ex. led_fn_indicator[_FN_C2][0].
 enum fn_key_names {
@@ -82,6 +85,7 @@ enum fn_key_names {
 enum custom_keycodes {
     SHIFTDN = SAFE_RANGE,
     SHIFTUP,
+    TGLINDI,  //  ToGgLeINDIcator
 
     L_BASE,
     L_SHIFT,
@@ -129,8 +133,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_FN] =  LAYOUT( \
             _______,                                                                                                                                                                                     \
             MI_VELU,                                                                                                                                                                                     \
-        MI_OCTD, MI_OCTU,     L_BASE,  L_FLIPB, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-            MI_VELD,               L_SHIFT, L_FLIPS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX      \
+        MI_OCTD, MI_OCTU,     L_BASE,  L_FLIPB, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_SAI, RGB_HUI, RGB_SPI, RGB_VAI, RGB_MOD, RGB_TOG, \
+            MI_VELD,               L_SHIFT, L_FLIPS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_SAD, RGB_HUD, RGB_SPD, RGB_VAD, RGB_RMOD, TGLINDI      \
     )
 };
 
@@ -216,6 +220,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             break;
+
+        case TGLINDI:
+            led_indicator_enable = !led_indicator_enable;
+            break;
     }
     return true;
 }
@@ -223,9 +231,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 void set_led_scale_indicator(uint8_t r, uint8_t g, uint8_t b) {
     uint8_t max_scale_indicator_led_loop;
     uint8_t i;
-    max_scale_indicator_led_loop = scale_indicator_col = DEFAULT_SCALE_COL ? 12 : 9;
-    for (i = 0; i < max_scale_indicator_led_loop; i++) {
-        rgb_matrix_set_color(led_scale_indicator[scale_indicator_col][i], r, g, b);
+    if (led_indicator_enable) {  //  turn on indicators when enabled.
+        max_scale_indicator_led_loop = scale_indicator_col = DEFAULT_SCALE_COL ? 12 : 9;
+        for (i = 0; i < max_scale_indicator_led_loop; i++) {
+            rgb_matrix_set_color(led_scale_indicator[scale_indicator_col][i], r, g, b);
+        }
     }
 }
 
@@ -249,11 +259,6 @@ void rgb_matrix_indicators_user(void) {
                 } else {  // 0 can't be included here since max scale_indicator_col is 11.
                   scale_indicator_col = 12 - midi_config.transpose;
                 }
-
-                // max_scale_indicator_led_loop = scale_indicator_col = DEFAULT_SCALE_COL ? 12 : 9;
-                // for (i = 0; i < max_scale_indicator_led_loop; i++) {
-                //     rgb_matrix_set_color(led_scale_indicator[scale_indicator_col][i], BASE_LAYER_COLOR);
-                // }
                 set_led_scale_indicator(BASE_LAYER_COLOR);
                 break;
 
@@ -266,27 +271,14 @@ void rgb_matrix_indicators_user(void) {
                 } else {  // 0 is included.
                   scale_indicator_col = midi_config.transpose;
                 }
-
-                // max_scale_indicator_led_loop = scale_indicator_col = DEFAULT_SCALE_COL ? 12 : 9;
-                // for (i = 0; i < max_scale_indicator_led_loop; i++) {
-                //     rgb_matrix_set_color(led_scale_indicator[scale_indicator_col][i], FLIPB_LAYER_COLOR);
-                // }
                 set_led_scale_indicator(FLIPB_LAYER_COLOR);
                 break;
 
             case _SHIFT:
-                // max_scale_indicator_led_loop = scale_indicator_col = DEFAULT_SCALE_COL ? 12 : 9;
-                // for (i = 0; i < max_scale_indicator_led_loop; i++) {
-                //     rgb_matrix_set_color(led_scale_indicator[scale_indicator_col][i], SHIFT_LAYER_COLOR);
-                // }
                 set_led_scale_indicator(SHIFT_LAYER_COLOR);
                 break;
 
             case _FLIPSHIFT:
-                // max_scale_indicator_led_loop = scale_indicator_col = DEFAULT_SCALE_COL ? 12 : 9;
-                // for (i = 0; i < max_scale_indicator_led_loop; i++) {
-                //     rgb_matrix_set_color(led_scale_indicator[scale_indicator_col][i], FLIPS_LAYER_COLOR);
-                // }
                 set_led_scale_indicator(FLIPS_LAYER_COLOR);
                 break;
 
@@ -299,6 +291,11 @@ void rgb_matrix_indicators_user(void) {
                     rgb_matrix_set_color(led_fn_indicator[_FN_K02][i], SHIFT_LAYER_COLOR);   //  L_SHIFT
                     rgb_matrix_set_color(led_fn_indicator[_FN_K03][i], FLIPB_LAYER_COLOR);   //  L_FLIPB
                     rgb_matrix_set_color(led_fn_indicator[_FN_K04][i], FLIPS_LAYER_COLOR);   //  L_FLIPS
+                }
+
+                for (i = _FN_K26; i <= _FN_K37; i++){
+                    // turn on the bottom row only to keep the visibility of the RGB MATRIX effects.
+                    rgb_matrix_set_color(led_fn_indicator[i][0], RGB_SPRINGGREEN);  //       //  LED related settings.
                 }
                 break;
         }
