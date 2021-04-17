@@ -18,17 +18,6 @@
 // Alias layout macros that expand groups of keys.
 #define LAYOUT_wrapper(...) LAYOUT(__VA_ARGS__)
 
-#define _________________QWERTY_L1_________________ KC_Q,    KC_W,    KC_E,    KC_R,    KC_T
-#define _________________QWERTY_L2_________________ KC_A,    KC_S,    KC_D,    KC_F,    KC_G
-#define _________________QWERTY_L3_________________ KC_Z,    KC_X,    KC_C,    KC_V,    KC_B
-
-#define _________________QWERTY_R1_________________ KC_Y,    KC_U,    KC_I,    KC_O,    KC_P
-#define _________________QWERTY_R2_________________ KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN
-#define _________________QWERTY_R3_________________ KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH
-
-#define _________________NUMBER_L__________________ KC_1,    KC_2,    KC_3,    KC_4,    KC_5
-#define _________________NUMBER_R__________________ KC_6,    KC_7,    KC_8,    KC_9,    KC_0
-
 #define DFCBASE DF(_C_SYSTEM_BASE)
 #define DF_QWER DF(_QWERTY)
 // Long press: go to _FN layer, tap: MUTE
@@ -36,6 +25,10 @@
 
 // Used to set octave to MI_OCT_0
 extern midi_config_t midi_config;
+uint8_t midi_base_ch = 0, midi_chord_ch = 0;  // By default, all use the same channel.
+
+// Initial velocity value (avoid using 127 since it is used as a special number in some sound sources.)
+#define MIDI_INITIAL_VELOCITY 117
 
 // Defines names for use in layer keycodes and the keymap
 enum layer_names {
@@ -48,8 +41,9 @@ enum layer_names {
 enum custom_keycodes {
 
     // MIDI Chord Keycodes - Root notes
+    MY_CHORD_MIN = SAFE_RANGE,
 
-    MI_CH_Cr = SAFE_RANGE,
+    MI_CH_Cr = MY_CHORD_MIN,
     MI_CH_Csr,
     MI_CH_Dbr = MI_CH_Csr,
     MI_CH_Dr,
@@ -146,7 +140,12 @@ enum custom_keycodes {
     MI_CH_AsDim7,
     MI_CH_BbDim7 = MI_CH_AsDim7,
     MI_CH_BDim7,
+
+    MY_CHORD_MAX = MI_CH_BDim7
 };
+
+#define MY_CHORD_COUNT (MY_CHORD_MAX - MY_CHORD_MIN + 1)
+static uint8_t chord_status[MY_CHORD_COUNT];
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   /* C-system Base */
@@ -195,47 +194,52 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 void keyboard_post_init_user(void) {
     //  Set otave to MI_OCT_0
     midi_config.octave = MI_OCT_0 - MIDI_OCTAVE_MIN;
+
+    // avoid using 127 since it is used as a special number in some sound sources.
+    midi_config.velocity = MIDI_INITIAL_VELOCITY;
+
+
+    for (uint8_t i = 0; i < MY_CHORD_COUNT; i++) {
+        chord_status[i] = MIDI_INVALID_NOTE;
+    }
+
+    default_layer_set(1UL << _C_SYSTEM_BASE);
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     uint16_t root_note = MIDI_INVALID_NOTE;  // Starting value for the root note of each chord
 
+    uint8_t chord        = keycode - MY_CHORD_MIN;
+
     switch (keycode) {
         // MIDI Chord Keycodes, on the left side.
         case MI_CH_Cr ... MI_CH_Br:  // Root Notes
             root_note = keycode - MI_CH_Cr + MI_C_1;
-            process_midi(root_note, record);
-            process_midi(root_note + 12, record);  // -1 Octave
-            // process_midi(root_note + 24, record);  // +1 Octave
+            my_process_midi4Base(midi_base_ch, record, chord_status, chord, root_note, false);
             break;
 
         case MI_CH_C ... MI_CH_B:  // Major Chords
             root_note = keycode - MI_CH_C + MI_C_2;
-            process_midi(root_note, record);
-            process_midi(root_note + 4, record);  // Major Third Note
-            process_midi(root_note + 7, record);  // Fifth Note
+            // Root, Major Third, and Fifth Notes
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 0, 4, 7);
             break;
 
         case MI_CH_Cm ... MI_CH_Bm:  // Minor Chord
             root_note = keycode - MI_CH_Cm + MI_C_2;
-            process_midi(root_note, record);
-            process_midi(root_note + 3, record);  // Minor Third Note
-            process_midi(root_note + 7, record);  // Fifth Note
+            // Root, Minor Third, and Fifth Notes
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 0, 3, 7);
             break;
 
         case MI_CH_CDom7 ... MI_CH_BDom7:  // Dominant 7th Chord
             root_note = keycode - MI_CH_CDom7 + MI_C_2;
-            // process_midi(root_note, record);
-            process_midi(root_note + 4, record);   // Major Third Note
-            process_midi(root_note + 7, record);   // Major Fifth Note
-            process_midi(root_note + 10, record);  // Minor Seventh Note
+            // Major Third, Major Fifth, and Minor Seventh Notes
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 4, 7, 10);
             break;
 
         case MI_CH_CDim7 ... MI_CH_BDim7:                // Diminished 7th Chord
             root_note = keycode - MI_CH_CDim7 + MI_C_2;
-            process_midi(root_note, record);
-            process_midi(root_note + 3, record);  // Minor Third Note
-            process_midi(root_note + 6, record);  // Diminished 5th Note
+            // Root, Minor Third, and Diminished 5th Note
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 0, 3, 6);
             break;
     }
     return true;

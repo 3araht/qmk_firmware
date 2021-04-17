@@ -18,17 +18,6 @@
 // Alias layout macros that expand groups of keys.
 #define LAYOUT_wrapper_giabaRInaix2(...) LAYOUT_giabaRInaix2(__VA_ARGS__)
 
-#define _________________QWERTY_L1_________________ KC_Q,    KC_W,    KC_E,    KC_R,    KC_T
-#define _________________QWERTY_L2_________________ KC_A,    KC_S,    KC_D,    KC_F,    KC_G
-#define _________________QWERTY_L3_________________ KC_Z,    KC_X,    KC_C,    KC_V,    KC_B
-
-#define _________________QWERTY_R1_________________ KC_Y,    KC_U,    KC_I,    KC_O,    KC_P
-#define _________________QWERTY_R2_________________ KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN
-#define _________________QWERTY_R3_________________ KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH
-
-#define _________________NUMBER_L__________________ KC_1,    KC_2,    KC_3,    KC_4,    KC_5
-#define _________________NUMBER_R__________________ KC_6,    KC_7,    KC_8,    KC_9,    KC_0
-
 #define DFCBASE DF(_C_SYSTEM_BASE)
 #define DF_QWER DF(_QWERTY)
 // Long press: go to _FN layer, tap: MUTE
@@ -36,35 +25,14 @@
 
 // Used to set octave to MI_OCT_0
 extern midi_config_t midi_config;
+uint8_t midi_base_ch = 0, midi_chord_ch = 0;  // By default, all use the same channel.
+
+// Initial velocity value (avoid using 127 since it is used as a special number in some sound sources.)
+#define MIDI_INITIAL_VELOCITY 117
+
 #ifdef RGBLIGHT_ENABLE
 /* used to specify there is no LED on the keylocation. */
 #    define NO_LED 255
-
-  /* Conversion map from keylocation (MATRIX_ROWS x2(split) x MATRIX_COLS) to led IDs.
-    led IDs are the number starts "0" from upper left corner of left side,
-    enumerated from left to right, from top to bottom.
-    Then emumeration follows to the right side, starting from "60".
-
-    Note that the conversion from physical LED serial alighment to
-      the led IDs is done with RGBLIGHT_LED_MAP beforehand.                          */
-const uint8_t PROGMEM convert_key_to_led[] =
-{
-    0,  12,  24,  36,  48,  11,  23,  35,  47,  59,
-    1,  13,  25,  37,  49,  10,  22,  34,  46,  58,
-    2,  14,  26,  38,  50,  9,   21,  33,  45,  57,
-    3,  15,  27,  39,  51,  8,   20,  32,  44,  56,
-    4,  16,  28,  40,  52,  7,   19,  31,  43,  55,
-    5,  17,  29,  41,  53,  6,   18,  30,  42,  54,
-
-  119, 107,  95,  83,  71, 108,  96,  84,  72,  60,
-  118, 106,  94,  82,  70, 109,  97,  85,  73,  61,
-  117, 105,  93,  81,  69, 110,  98,  86,  74,  62,
-  116, 104,  92,  80,  68, 111,  99,  87,  75,  63,
-  115, 103,  91,  79,  67, 112, 100,  88,  76,  64,
-  114, 102,  90,  78,  66, 113, 101,  89,  77,  65
-};
-
-
 #endif  //  RGBLIGHT_ENABLE
 // Defines names for use in layer keycodes and the keymap
 enum layer_names {
@@ -80,8 +48,9 @@ enum layer_names {
 enum custom_keycodes {
 
     // MIDI Chord Keycodes - Root notes
+    MY_CHORD_MIN = SAFE_RANGE,
 
-    MI_CH_Cr = SAFE_RANGE,
+    MI_CH_Cr = MY_CHORD_MIN,
     MI_CH_Csr,
     MI_CH_Dbr = MI_CH_Csr,
     MI_CH_Dr,
@@ -179,11 +148,17 @@ enum custom_keycodes {
     MI_CH_BbDim7 = MI_CH_AsDim7,
     MI_CH_BDim7,
 
-    CSYSTEM,
-    CNTBASC,
-    CSYSALL,
-    CHRTONE
+    MY_CHORD_MAX = MI_CH_BDim7,
+
+    CSYSTEM,  // C-SYSTEM layout
+    CNTBASC,  // CouNTer BASe C-system layout
+    CSYSALL,  // C-SYStem ALL layout
+    CHRTONE,  // CHRomaTONE layout
+    TGLMICH   // ToGgLe MIdi CHannel separation
 };
+
+#define MY_CHORD_COUNT (MY_CHORD_MAX - MY_CHORD_MIN + 1)
+static uint8_t chord_status[MY_CHORD_COUNT];
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   /* C-system Base */
@@ -265,13 +240,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_FN] = LAYOUT_giabaRInaix2(
     CSYSTEM, CNTBASC, CSYSALL, CHRTONE, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_TOG,
       DF_QWER, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, TGLMICH,
           XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
             XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
 
     CSYSTEM, CNTBASC, CSYSALL, CHRTONE, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_TOG,
       DF_QWER, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, TGLMICH,
           XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
             XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,  _______
   )
@@ -284,11 +259,13 @@ const rgblight_segment_t PROGMEM my_fn_layer[] = RGBLIGHT_LAYER_SEGMENTS(       
                                                                          {0,   4, HSV_ORANGE},      //  MIDI layouts
                                                                          {11,  1, HSV_RED},         //  RGB_TOG
                                                                          {12,  1, HSV_WHITE},       //  DF_QWER
+                                                                         {35,  1, HSV_TEAL},        //  TGLMICH
 
                                                                                                     //  right keyboard
                                                                          {60,  4, HSV_ORANGE},      //  MIDI layouts
                                                                          {71 , 1, HSV_RED},         //  RGB_TOG
-                                                                         {72,  1, HSV_WHITE}        //  DF_QWER
+                                                                         {72,  1, HSV_WHITE},       //  DF_QWER
+                                                                         {83,  1, HSV_TEAL}         //  TGLMICH
 );
 
 
@@ -306,10 +283,39 @@ void keyboard_post_init_user(void) {
     //  Set otave to MI_OCT_0
     midi_config.octave = MI_OCT_0 - MIDI_OCTAVE_MIN;
 
+    // avoid using 127 since it is used as a special number in some sound sources.
+    midi_config.velocity = MIDI_INITIAL_VELOCITY;
+
+    for (uint8_t i = 0; i < MY_CHORD_COUNT; i++) {
+        chord_status[i] = MIDI_INVALID_NOTE;
+    }
+
 #ifdef RGBLIGHT_ENABLE
+
     rgblight_layers = my_rgb_layers;
-#endif
+
+    // Reset LED off
+    rgblight_sethsv(HSV_BLACK);
+#    if defined(RGBLIGHT_EFFECT_KNIGHT) || defined(RGBLIGHT_EFFECT_TWINKLE)
+    rgblight_sethsv(30, 50, 40);
+#        ifdef RGBLIGHT_EFFECT_KNIGHT
+    rgblight_mode(RGBLIGHT_MODE_KNIGHT);
+#        elif defined(RGBLIGHT_EFFECT_TWINKLE)
+    rgblight_mode(RGBLIGHT_MODE_TWINKLE+3);
+#        endif
+#    endif
+#endif  // RGBLIGHT_ENABLE
 };
+
+void toggle_MIDI_channel_separation(void) {
+    if (midi_chord_ch > 0) {
+        midi_chord_ch = 0;
+        midi_base_ch  = 0;
+    } else {
+        midi_chord_ch = 1;
+        midi_base_ch  = 2;
+    }
+}
 
 #ifdef RGBLIGHT_ENABLE
 void keylight_manager(keyrecord_t *record, uint8_t hue, uint8_t sat, uint8_t val, uint8_t keylocation) {
@@ -334,6 +340,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         uint8_t c            = record->event.key.col;
         uint8_t keylocation  = pgm_read_byte(&convert_key_to_led[MATRIX_COLS * r + c]);
     #endif  // RGBLIGHT_ENABLE
+
+    uint8_t chord        = keycode - MY_CHORD_MIN;
 
     switch (keycode) {
         //  set default layer and save it to EEPROM when MIDI key layers are selected.
@@ -361,53 +369,49 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
 
+        case TGLMICH:
+            if (record->event.pressed) {
+                toggle_MIDI_channel_separation();
+            };
+            break;
+
+
         // MIDI Chord Keycodes, on the left side.
         case MI_CH_Cr ... MI_CH_Br:  // Root Notes
             root_note = keycode - MI_CH_Cr + MI_C_1;
-            process_midi(root_note, record);
-            process_midi(root_note + 12, record);  // -1 Octave
-            // process_midi(root_note + 24, record);  // +1 Octave
+            my_process_midi4Base(midi_base_ch, record, chord_status, chord, root_note, false);
 #ifdef RGBLIGHT_ENABLE
             keylight_manager(record, HSV_GOLDENROD, keylocation);
 #endif
             break;
-
         case MI_CH_C ... MI_CH_B:  // Major Chords
             root_note = keycode - MI_CH_C + MI_C_2;
-            process_midi(root_note, record);
-            process_midi(root_note + 4, record);  // Major Third Note
-            process_midi(root_note + 7, record);  // Fifth Note
+            // Root, Major Third, and Fifth Notes
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 0, 4, 7);
 #ifdef RGBLIGHT_ENABLE
             keylight_manager(record, HSV_GOLDENROD, keylocation);
 #endif
             break;
-
         case MI_CH_Cm ... MI_CH_Bm:  // Minor Chord
             root_note = keycode - MI_CH_Cm + MI_C_2;
-            process_midi(root_note, record);
-            process_midi(root_note + 3, record);  // Minor Third Note
-            process_midi(root_note + 7, record);  // Fifth Note
+            // Root, Minor Third, and Fifth Notes
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 0, 3, 7);
 #ifdef RGBLIGHT_ENABLE
             keylight_manager(record, HSV_GOLDENROD, keylocation);
 #endif
             break;
-
         case MI_CH_CDom7 ... MI_CH_BDom7:  // Dominant 7th Chord
             root_note = keycode - MI_CH_CDom7 + MI_C_2;
-            // process_midi(root_note, record);
-            process_midi(root_note + 4, record);   // Major Third Note
-            process_midi(root_note + 7, record);   // Major Fifth Note
-            process_midi(root_note + 10, record);  // Minor Seventh Note
+            // Major Third, Major Fifth, and Minor Seventh Notes
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 4, 7, 10);
 #ifdef RGBLIGHT_ENABLE
             keylight_manager(record, HSV_GOLDENROD, keylocation);
 #endif
             break;
-
         case MI_CH_CDim7 ... MI_CH_BDim7:                // Diminished 7th Chord
             root_note = keycode - MI_CH_CDim7 + MI_C_2;
-            process_midi(root_note, record);
-            process_midi(root_note + 3, record);  // Minor Third Note
-            process_midi(root_note + 6, record);  // Diminished 5th Note
+            // Root, Minor Third, and Diminished 5th Note
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 0, 3, 6);
 #ifdef RGBLIGHT_ENABLE
             keylight_manager(record, HSV_GOLDENROD, keylocation);
 #endif

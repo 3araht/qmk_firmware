@@ -19,28 +19,6 @@
 // Alias layout macros that expand groups of keys.
 #define LAYOUT_wrapper(...) LAYOUT(__VA_ARGS__)
 
-#define _________________QWERTY_L1_________________ KC_Q,    KC_W,    KC_E,    KC_R,    KC_T
-#define _________________QWERTY_L2_________________ KC_A,    KC_S,    KC_D,    KC_F,    KC_G
-#define _________________QWERTY_L3_________________ KC_Z,    KC_X,    KC_C,    KC_V,    KC_B
-
-#define _________________QWERTY_R1_________________ KC_Y,    KC_U,    KC_I,    KC_O,    KC_P
-#define _________________QWERTY_R2_________________ KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN
-#define _________________QWERTY_R3_________________ KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH
-
-#define _________________COLEMAK_L1________________ KC_Q,    KC_W,    KC_F,    KC_P,    KC_G
-#define _________________COLEMAK_L2________________ KC_A,    KC_R,    KC_S,    KC_T,    KC_D
-#define _________________COLEMAK_L3________________ KC_Z,    KC_X,    KC_C,    KC_V,    KC_B
-
-#define _________________COLEMAK_R1________________ KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN
-#define _________________COLEMAK_R2________________ KC_H,    KC_N,    KC_E,    KC_I,    KC_O
-#define _________________COLEMAK_R3________________ KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH
-
-#define _________________NUMBER_L__________________ KC_1,    KC_2,    KC_3,    KC_4,    KC_5
-#define _________________NUMBER_R__________________ KC_6,    KC_7,    KC_8,    KC_9,    KC_0
-
-#define _________________FUNC__L___________________ KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5
-#define _________________FUNC__R___________________ KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10
-
 #define DF_QWER  DF(_QWERTY)
 #define DF_COLE  DF(_COLEMAK)
 #define MO_ADJ   MO(_ADJUST)
@@ -52,6 +30,17 @@
 
 // Used to set octave to MI_OCT_0
 extern midi_config_t midi_config;
+uint8_t midi_base_ch = 0, midi_chord_ch = 0;  // By default, all use the same channel.
+
+// Initial velocity value (avoid using 127 since it is used as a special number in some sound sources.)
+#define MIDI_INITIAL_VELOCITY 117
+
+// UNISON flags
+static bool melody_dyad_high = false;  //  true when +1 octave unison dyad is enabled.
+static bool melody_dyad_low  = false;  //  true when -1 octave unison dyad is enabled.
+
+
+static bool melody_unison_suppress  = true;  //  true: velocity of octave unison note is suppressd to UNISON_VELOCITY_RATIO
 
 // To record the status of Bass Chord (single or dyad, default: dyad.)
 typedef union {
@@ -67,53 +56,6 @@ user_config_t user_config;
 #ifdef RGBLIGHT_ENABLE
 /* used to specify there is no LED on the keylocation. */
 #    define NO_LED 255
-
-  /* Conversion map from keylocation (MATRIX_ROWS x2(split) x MATRIX_COLS) to led IDs.
-    led IDs are the number starts "0" from upper left corner of left side,
-    enumerated from left to right, from top to bottom.
-    Then emumeration follows to the right side, starting from "60".
-
-    Note that the conversion from physical LED serial alighment to
-      the led IDs is done with RGBLIGHT_LED_MAP beforehand.                          */
-const uint8_t PROGMEM convert_key_to_led[] =
-{
-  0,      12,    24,    36,    48,      11,    23,    35,     47,     59,
-  1,      13,    25,    37,    49,      10,    22,    34,     46,     58,
-  2,      14,    26,    38,    50,      9,     21,    33,     45,     57,
-  3,      15,    27,    39,    51,      8,     20,    32,     44,     56,
-  4,      16,    28,    40,    52,      7,     19,    31,     43,     55,
-  5,      17,    29,    41,    53,      6,     18,    30,     42,     54,
-
-  85,     86,    87,    88,    89,      90,    91,    NO_LED, NO_LED, NO_LED,
-  98,     99,    100,   101,   102,     103,   104,   NO_LED, NO_LED, NO_LED,
-  NO_LED, 111,   112,   113,   114,     115,   116,   NO_LED, NO_LED, NO_LED,
-  NO_LED, 97,    96,    95,    94,      93,    92,    NO_LED, NO_LED, NO_LED,
-  NO_LED, 110,   109,   108,   107,     106,   105,   NO_LED, NO_LED, NO_LED,
-  NO_LED, 122,   121,   120,   119,     118,   117,   NO_LED, NO_LED, NO_LED
-};
-
-/* Top 2 rows on the right side (LED:60-84) are
-   duplicates of the bottom 2 rows (LED:85-122).
-   LED:97 = Encoder,
-   LED:110 don't have a duplicate on the top row,
-   LED:72 is used when r20 is pressed (not a duplicate) */
-const uint8_t PROGMEM convert_key_to_led2[] =
-{
-  NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,   NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,
-  NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,   NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,
-  NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,   NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,
-  NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,   NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,
-  NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,   NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,
-  NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,   NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,
-
-  NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,   NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,
-  60,     61,     62,     63,     64,       65,     66,     NO_LED, NO_LED, NO_LED,
-  72,     73,     74,     75,     76,       77,     78,     NO_LED, NO_LED, NO_LED,
-  NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,   NO_LED, NO_LED, NO_LED, NO_LED, NO_LED,
-  NO_LED, NO_LED, 71,     70,     69,       68,     67,     NO_LED, NO_LED, NO_LED,
-  NO_LED, 84,     83,     82,     81,       80,     79,     NO_LED, NO_LED, NO_LED
-};
-
 #endif  //  RGBLIGHT_ENABLE
 
 
@@ -135,8 +77,9 @@ enum layer_names {
 enum custom_keycodes {
 
     // MIDI Chord Keycodes - Root notes
+    MY_CHORD_MIN = SAFE_RANGE,
 
-    MI_CH_Cr = SAFE_RANGE,
+    MI_CH_Cr = MY_CHORD_MIN,
     MI_CH_Csr,
     MI_CH_Dbr = MI_CH_Csr,
     MI_CH_Dr,
@@ -234,14 +177,25 @@ enum custom_keycodes {
     MI_CH_BbDim7 = MI_CH_AsDim7,
     MI_CH_BDim7,
 
-    CSYSTEM,
-    BSYSTEM,
-    CNTBASC,
-    CSYSALL,
-    CHRTONE,
-    CFLIP2B,
-    TGLBASS
+    MY_CHORD_MAX = MI_CH_BDim7,
+
+    CSYSTEM,  // C-SYSTEM layout
+    BSYSTEM,  // B-SYSTEM layout
+    CNTBASC,  // CouNTer BASe C-system layout
+    CSYSALL,  // C-SYStem ALL layout
+    CHRTONE,  // CHRomaTONE layout
+    CFLIP2B,  // C-system FLIPped 2(to) Backwards
+    TGLBASS,  // ToGgLe BASS unison
+    TGLMICH,  // ToGgLe MIdi CHannel separation
+    MELDYAL,  // MELody DYad Low
+    MELODYS,  // MELODY Single
+    MELDYAH,  // MELody DYad High
+    TGLUVEL   // ToGgLe Unison VELocity
 };
+
+#define MY_CHORD_COUNT (MY_CHORD_MAX - MY_CHORD_MIN + 1)
+static uint8_t chord_status[MY_CHORD_COUNT];
+static uint8_t my_tone_status[MIDI_TONE_COUNT];
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   /* C-system Base */
@@ -374,14 +328,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_FN] = LAYOUT(
     CSYSTEM, BSYSTEM, CNTBASC, CSYSALL, CHRTONE, CFLIP2B, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_TOG,
       DF_QWER, TGLBASS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        DF_COLE, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        DF_COLE, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, TGLMICH,
           XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
             XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
 
     XXXXXXX,
       MI_OCT_N2, MI_OCT_N1, MI_OCT_0, MI_OCT_1, MI_OCT_2, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, EEP_RST,   _______,
-    CSYSTEM, BSYSTEM,  CNTBASC,  CSYSALL,  CHRTONE,  CFLIP2B, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_TOG,
-      XXXXXXX,   TGLBASS,   XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
+    CSYSTEM, BSYSTEM,  CNTBASC,  CSYSALL,  CHRTONE,  CFLIP2B, XXXXXXX, XXXXXXX, XXXXXXX, MI_VELD, MI_VELU, XXXXXXX, RGB_TOG,
+      XXXXXXX,   TGLBASS,   XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, TGLUVEL, MELDYAL, MELODYS, MELDYAH
   )
 };
 
@@ -404,6 +358,7 @@ const rgblight_segment_t PROGMEM my_fn_layer[] = RGBLIGHT_LAYER_SEGMENTS(       
                                                                          {12,  1, HSV_WHITE},       //  DF_QWER
                                                                          {13,  1, HSV_CORAL},       //  TGLBASS
                                                                          {24,  1, HSV_WHITE},       //  DF_COLE
+                                                                         {35,  1, HSV_TEAL},        //  TGLMICH
 #if 0  //  Color Test
                                                                          {36,  1, HSV_WHITE},
                                                                          {37,  1, HSV_RED},
@@ -434,8 +389,14 @@ const rgblight_segment_t PROGMEM my_fn_layer[] = RGBLIGHT_LAYER_SEGMENTS(       
                                                                          {89,  1, HSV_CHARTREUSE},  //  MIDI Oct
                                                                          {96,  1, HSV_PINK},        //  EEP_RST
                                                                          {98,  6, HSV_ORANGE},      //  MIDI layouts
+                                                                         {107, 1, HSV_YELLOW},      //  MI_VELD
+                                                                         {108, 1, HSV_GREEN},       //  MI_VELU
                                                                          {110, 1, HSV_RED},         //  RGB_TOG
-                                                                         {112, 1, HSV_CORAL}        //  TGLBASS
+                                                                         {112, 1, HSV_CORAL},       //  TGLBASS
+                                                                         {119, 1, HSV_CORAL},       //  TGLUVEL
+                                                                         {120, 1, HSV_CYAN},        //  MELDYAL
+                                                                         {121, 1, HSV_GOLD},        //  MELODYS
+                                                                         {122, 1, HSV_SPRINGGREEN}  //  MELDYAH
 );
 
 
@@ -456,6 +417,16 @@ void keyboard_post_init_user(void) {
     //  Set octave to MI_OCT_0
     midi_config.octave = MI_OCT_0 - MIDI_OCTAVE_MIN;
 
+    // avoid using 127 since it is used as a special number in some sound sources.
+    midi_config.velocity = MIDI_INITIAL_VELOCITY;
+
+    for (uint8_t i = 0; i < MY_CHORD_COUNT; i++) {
+        chord_status[i] = MIDI_INVALID_NOTE;
+    }
+
+    for (uint8_t i = 0; i < MIDI_TONE_COUNT; i++) {
+        my_tone_status[i] = MIDI_INVALID_NOTE;
+    }
     //  load EEPROM data for isSingleBass
     user_config.raw = eeconfig_read_user();
 
@@ -486,6 +457,16 @@ void toggle_isSingleBass(void) {
 #endif
 
   eeconfig_update_user(user_config.raw);
+}
+
+void toggle_MIDI_channel_separation(void) {
+    if (midi_chord_ch > 0) {
+        midi_chord_ch = 0;
+        midi_base_ch  = 0;
+    } else {
+        midi_chord_ch = 1;
+        midi_base_ch  = 2;
+    }
 }
 
 void eeconfig_init_user(void) {
@@ -526,6 +507,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     uint8_t keylocation  = pgm_read_byte(&convert_key_to_led[MATRIX_COLS * r + c]);
     uint8_t keylocation2 = pgm_read_byte(&convert_key_to_led2[MATRIX_COLS * r + c]);
 #endif  // RGBLIGHT_ENABLE
+
+    uint8_t chord        = keycode - MY_CHORD_MIN;
 
     switch (keycode) {
         //  set default layer and save it to EEPROM when MIDI key layers are selected.
@@ -571,16 +554,43 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             };
             break;
 
+        case TGLMICH:
+            if (record->event.pressed) {
+                toggle_MIDI_channel_separation();
+            };
+            break;
+
+        case MELDYAL:
+            if (record->event.pressed) {
+                melody_dyad_low  = true;
+                melody_dyad_high = false;
+            };
+            break;
+
+        case MELODYS:
+            if (record->event.pressed) {
+                melody_dyad_low  = false;
+                melody_dyad_high = false;
+            };
+            break;
+
+        case MELDYAH:
+            if (record->event.pressed) {
+                melody_dyad_low  = false;
+                melody_dyad_high = true;
+            };
+            break;
+
+        case TGLUVEL:
+            if (record->event.pressed) {
+                melody_unison_suppress = !melody_unison_suppress;
+            };
+            break;
+
         // MIDI Chord Keycodes, on the left side.
         case MI_CH_Cr ... MI_CH_Br:  // Root Notes
             root_note = keycode - MI_CH_Cr + MI_C_1;
-            if (IS_SINGLE_BASS()) {
-              process_midi(root_note, record);
-            } else {
-              process_midi(root_note, record);
-              process_midi(root_note + 12, record);  // +1 Octave
-            }
-            // process_midi(root_note + 24, record);  // +2 Octave
+            my_process_midi4Base(midi_base_ch, record, chord_status, chord, root_note, IS_SINGLE_BASS());
 #ifdef RGBLIGHT_ENABLE
             keylight_manager(record, HSV_GOLDENROD, keylocation);
 #endif
@@ -588,9 +598,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case MI_CH_C ... MI_CH_B:  // Major Chords
             root_note = keycode - MI_CH_C + MI_C_2;
-            process_midi(root_note, record);
-            process_midi(root_note + 4, record);  // Major Third Note
-            process_midi(root_note + 7, record);  // Fifth Note
+            // Root, Major Third, and Fifth Notes
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 0, 4, 7);
 #ifdef RGBLIGHT_ENABLE
             keylight_manager(record, HSV_GOLDENROD, keylocation);
 #endif
@@ -598,9 +607,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case MI_CH_Cm ... MI_CH_Bm:  // Minor Chord
             root_note = keycode - MI_CH_Cm + MI_C_2;
-            process_midi(root_note, record);
-            process_midi(root_note + 3, record);  // Minor Third Note
-            process_midi(root_note + 7, record);  // Fifth Note
+            // Root, Minor Third, and Fifth Notes
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 0, 3, 7);
 #ifdef RGBLIGHT_ENABLE
             keylight_manager(record, HSV_GOLDENROD, keylocation);
 #endif
@@ -608,10 +616,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case MI_CH_CDom7 ... MI_CH_BDom7:  // Dominant 7th Chord
             root_note = keycode - MI_CH_CDom7 + MI_C_2;
-            // process_midi(root_note, record);
-            process_midi(root_note + 4, record);   // Major Third Note
-            process_midi(root_note + 7, record);   // Major Fifth Note
-            process_midi(root_note + 10, record);  // Minor Seventh Note
+            // Major Third, Major Fifth, and Minor Seventh Notes
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 4, 7, 10);
 #ifdef RGBLIGHT_ENABLE
             keylight_manager(record, HSV_GOLDENROD, keylocation);
 #endif
@@ -619,9 +625,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case MI_CH_CDim7 ... MI_CH_BDim7:                // Diminished 7th Chord
             root_note = keycode - MI_CH_CDim7 + MI_C_2;
-            process_midi(root_note, record);
-            process_midi(root_note + 3, record);  // Minor Third Note
-            process_midi(root_note + 6, record);  // Diminished 5th Note
+            // Root, Minor Third, and Diminished 5th Note
+            my_process_midi4TriadChords(midi_chord_ch, record, chord_status, chord, root_note, 0, 3, 6);
 #ifdef RGBLIGHT_ENABLE
             keylight_manager(record, HSV_GOLDENROD, keylocation);
 #endif
@@ -637,15 +642,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
 #endif
 
-
-            // Keycodes on the right side.
-
+        // Keycodes on the right side.
+        case MIDI_TONE_MIN ... MIDI_TONE_MAX:  // notes on the right side keyboard.
+            //  root_note is played by process_midi().
+            if ( melody_dyad_high == true ) {        //  play 1 octave higher as well.
+                my_process_midi(0, keycode, record, my_tone_status, 12, melody_unison_suppress);
+            } else if ( melody_dyad_low == true ) {  //  play 1 octave lower as well.
+                my_process_midi(0, keycode, record, my_tone_status, -12, melody_unison_suppress);
+            }
 #ifdef RGBLIGHT_ENABLE
-        case MIDI_TONE_MIN ... MIDI_TONE_MAX:  // notes on the right side.
             keylight_manager(record, HSV_GOLDENROD, keylocation);
             keylight_manager(record, HSV_GOLDENROD, keylocation2);
+#endif
             break;
 
+#ifdef RGBLIGHT_ENABLE
         // case KC_MUTE:
         case FN_MUTE:
             keylight_manager(record, HSV_GOLDENROD, keylocation);
@@ -662,9 +673,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #ifdef ENCODER_ENABLE
 void encoder_update_user(int8_t index, bool clockwise) {
-#    ifdef CONSOLE_ENABLE
-    uprintf("encoder_update_user, index = %d, clockwise = %u\n", index, clockwise);
-#    endif
     if (index == 1) { /* An encoder on the right side */
         if (clockwise) {
             tap_code(KC_VOLU);
@@ -672,8 +680,5 @@ void encoder_update_user(int8_t index, bool clockwise) {
             tap_code(KC_VOLD);
         }
     }
-#    ifdef CONSOLE_ENABLE
-        uprintf("midi_config.octave = %u\n", midi_config.octave);
-#    endif
 }
 #endif  // ENCODER_ENABLE
