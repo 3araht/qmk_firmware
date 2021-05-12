@@ -1,7 +1,7 @@
 {
   "name": "ct_macropad12",
   "vendorId": "0xFEED",
-  "productId": "0xF4B3",
+  "productId": "0xF4B1",
   "lighting": "none",
   "matrix": { "rows": 1, "cols": 12},
   "layouts": {
@@ -14,11 +14,11 @@
         {
           "x": 0.5
         },
-        "0,7\n\n\n0,0",
-        "0,8\n\n\n0,0",
-        "0,9\n\n\n0,0",
-        "0,10\n\n\n0,0",
-        "0,11\n\n\n0,0"
+        "0,7\n\n\n0,1",
+        "0,8\n\n\n0,1",
+        "0,9\n\n\n0,1",
+        "0,10\n\n\n0,1",
+        "0,11\n\n\n0,1"
       ],
       [
         {
