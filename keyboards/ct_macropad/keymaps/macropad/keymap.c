@@ -50,40 +50,40 @@ enum custom_keycodes {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* Base */
 #ifdef MIDI_ENABLE
-    [_BASE] = LAYOUT_macropad15( \
+    [_BASE] = LAYOUT_macropad12( \
         BASEUP,   MI_C_3, MI_Db_3, MI_D_3, MI_Eb_3, MI_E_3, \
                           MI_Db_3,         MI_Eb_3,         \
         BASEDN,   MI_C_3,          MI_D_3,          MI_E_3  \
     ),
 #else
-    [_BASE] = LAYOUT_macropad15( \
+    [_BASE] = LAYOUT_macropad12( \
         BASEUP,   KC_B, KC_C, KC_D, KC_E, KC_F, \
                           KC_G,         KC_H,         \
         BASEDN,   KC_J,          KC_K,          KC_L  \
     ),
 #endif  // MIDI_ENABLE
     // https://osxdaily.com/2012/04/03/safari-keyboard-shortcuts/
-    [_WEB] = LAYOUT_macropad15( \
+    [_WEB] = LAYOUT_macropad12( \
         WEBUP, LGUI(KC_L),    RCS(KC_TAB),   LCTL(KC_TAB), S(KC_SPC),    KC_SPC,           \
                               LGUI(KC_MINS),               LGUI(KC_EQL),                   \
         WEBDN, LGUI(KC_LEFT),                LGUI(KC_R),                 LGUI(KC_RIGHT)    \
     ),
     // Basic shortcuts
     // https://support.apple.com/en-us/HT201236
-    [_COPY] = LAYOUT_macropad15( \
+    [_COPY] = LAYOUT_macropad12( \
         COPYUP, SPOTLGT,    CHARACT,    TOGFSCR,    SCRSHOT,    SCRLOCK,   \
                             LGUI(KC_A),             LGUI(KC_F),            \
         COPYDN, LGUI(KC_X),             LGUI(KC_C),             LGUI(KC_V) \
     ),
     // Shortcuts for meetings
     // Used for OBS, Teams, etc.
-    [_MEET] = LAYOUT_macropad15( \
+    [_MEET] = LAYOUT_macropad12( \
         MEETUP, LSA(KC_F6), LSA(KC_F7), LSA(KC_F8), LSA(KC_F9), LSA(KC_F10), \
                             LSA(KC_F2),             LSA(KC_F4),              \
         MEETDN, LSA(KC_F1),             LSA(KC_F3),             LSA(KC_F5)   \
     ),
     // Somehow neither TO/TG worked. DF used.
-    [_FN] = LAYOUT_macropad15( \
+    [_FN] = LAYOUT_macropad12( \
         RGB_MOD,   RGB_TOG,  RGB_VAD, RGB_VAI,   RGB_SPD, RGB_SPI,  \
                              RGB_SAD,            RGB_SAI,           \
         DF(_BASE), DF(_WEB),          DF(_COPY),          DF(_MEET) \

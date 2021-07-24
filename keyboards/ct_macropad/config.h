@@ -161,7 +161,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef MIDI_ENABLE
 #    define MIDI_ADVANCED
-#    define MIDI_TONE_KEYCODE_OCTAVES 5
 #endif  //  MIDI_ENABLE
 
 #ifdef RGB_MATRIX_ENABLE
