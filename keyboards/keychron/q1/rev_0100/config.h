@@ -1,4 +1,4 @@
-/* Copyright 2016 IBNobody
+/* Copyright 2021 @ Keychron (https://www.keychron.com)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +16,11 @@
 
 #pragma once
 
-#include <float.h>
-#include <stdint.h>
 
-#define VIBRATO_LUT_LENGTH 20
+/* USB Device descriptor parameter */
+#define PRODUCT_ID      0x0100
+#define DEVICE_VER      0x0001
 
-#define FREQUENCY_LUT_LENGTH 349
-
-extern const float    vibrato_lut[VIBRATO_LUT_LENGTH];
-extern const uint16_t frequency_lut[FREQUENCY_LUT_LENGTH];
+/* key matrix pins */
+#define MATRIX_ROW_PINS { D3, D2, B3, B2, B1, B0 }
+#define MATRIX_COL_PINS { D5, D4, D6, D7, B4, B5, B6, C6, C7, F7, F6, F5, F4, F1, F0 }

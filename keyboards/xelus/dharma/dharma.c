@@ -1,4 +1,4 @@
-/* Copyright 2016 IBNobody
+/* Copyright 2021 Harrison Chan (Xelus)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,4 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include <float.h>
-#include <stdint.h>
-
-#define VIBRATO_LUT_LENGTH 20
-
-#define FREQUENCY_LUT_LENGTH 349
-
-extern const float    vibrato_lut[VIBRATO_LUT_LENGTH];
-extern const uint16_t frequency_lut[FREQUENCY_LUT_LENGTH];
+#include "quantum.h"

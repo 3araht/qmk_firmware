@@ -1,4 +1,4 @@
-/* Copyright 2016 IBNobody
+/* Copyright 2021 @ Keychron (https://www.keychron.com)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +16,8 @@
 
 #pragma once
 
-#include <float.h>
-#include <stdint.h>
+#include "quantum.h"
 
-#define VIBRATO_LUT_LENGTH 20
-
-#define FREQUENCY_LUT_LENGTH 349
-
-extern const float    vibrato_lut[VIBRATO_LUT_LENGTH];
-extern const uint16_t frequency_lut[FREQUENCY_LUT_LENGTH];
+#if defined(KEYBOARD_keychron_q1_rev_0100)
+#    include "rev_0100.h"
+#endif
