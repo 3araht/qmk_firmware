@@ -49,6 +49,11 @@ Since it was just boring to make one board as a prototype, the board was conside
 |ct_macropad_via_macropad.hex|キー数は12こ、グリッサンド用のキーを独立して認識します。12キーのマクロパッドとして使うためのファームウェア。"macropad" のジャンパー 5つをショートして使います。via に対応。[REMAP](https://remap-keys.app/) でキーレイアウト変更が可能。|
 
 
+## レイヤーの切り替え方法
+一番左の列にある2つのボタンを同時タップ（タップなので押し続ける必要はありません）すると、FNレイヤーに移ります。  
+そこで、どこのレイヤーに行きたいかを指定します。  
+FNレイヤーでは、一部LEDの設定もできます。  
+
 Make example for this keyboard (after setting up your build environment):
 
     make ct_macropad:default
