@@ -50,11 +50,13 @@ Since it was just boring to make one board as a prototype, the board was conside
 
 
 ## レイヤーの切り替え方法
-一番左の列にある2つのボタンを同時タップ（タップなので押し続ける必要はありません）すると、FNレイヤーに移ります。  
+一番左の列にある2つのボタンを同時タップ（タップなので押し続ける必要はありません。Combo という仕組みを使用してます。）すると、FNレイヤーに移ります。  
+
 そこで、どこのレイヤーに行きたいかを指定します。  
 FNレイヤーでは、一部LEDの設定もできます。  
 
-Make example for this keyboard (after setting up your build environment):
+## Make example for this keyboard
+(after setting up your build environment):
 
     make ct_macropad:default
 
