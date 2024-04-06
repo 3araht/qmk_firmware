@@ -2,6 +2,7 @@
     "manufacturer": "3araht",
     "keyboard_name": "bandominedoni",
     "maintainer": "3araht",
+    "bootloader": "caterina",
     "build": {
         "lto": true
     },
@@ -19,6 +20,8 @@
         "cols": ["D1", "E6", "F7", "B1", "B3", "B2", "D0"],
         "rows": ["B5", "B4", "D7", "F6", "C6", "D4"]
     },
+    "pin_compatible": "promicro",
+    "processor": "atmega32u4",
     "qmk": {
         "tap_keycode_delay": 10
     },
@@ -102,8 +105,8 @@
             {"matrix": [4, 0], "x": 27, "y": 52, "flags": 4},
             {"matrix": [0, 0], "x": 19, "y": 56, "flags": 4}
         ],
-        "led_count": 76,
-        "max_brightness": 50
+        "max_brightness": 50,
+        "sleep": true
     },
     "split": {
         "enabled": true,
@@ -114,7 +117,13 @@
                 ]
             }
         },
-        "soft_serial_pin": "D2"
+        "soft_serial_pin": "D2",
+        "transport": {
+            "protocol": "serial"
+        },
+        "usb_detect": {
+            "enabled": true
+        }
     },
     "url": "https://github.com/3araht",
     "usb": {
