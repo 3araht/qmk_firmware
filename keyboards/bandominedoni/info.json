@@ -6,7 +6,6 @@
     "build": {
         "lto": true
     },
-    "development_board": "promicro",
     "diode_direction": "COL2ROW",
     "encoder": {
         "enabled": true

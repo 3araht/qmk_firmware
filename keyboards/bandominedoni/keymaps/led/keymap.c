@@ -84,13 +84,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
        MY_D1, MY_D2, MY_As2, MY_C3, MY_Cs2, MY_C2, MY_Fs1,
          MY_G1, MY_G2, MY_B2, MY_D3, MY_F3, MY_Fs2, TG_SWAP,
        MY_A1, MY_E2, MY_A2, MY_Cs3, MY_E3, MY_Gs2, MY_B1,
-     MY_E1, MI_E2, MY_Fs3, MY_Gs3, MY_B3, MY_F2, MY_Cs1, MY_F1,
+     MY_E1, MY_E2, MY_Fs3, MY_Gs3, MY_B3, MY_F2, MY_Cs1, MY_F1,
 
      MYMOSWP,    MI_A5, MI_Gs5, MI_Fs5, MI_F5,     FN_MUTE,
          MI_C3, MI_G5, MI_As4, MI_C5, MI_Ds5,
         MI_D3, MI_Cs3, MI_Gs3, MI_As3, MI_C4, MI_D5,
      TG_SWAP, MI_B2, MI_Fs3, MI_Fs4, MI_G3, MI_B3, MI_D4, MI_G4,
-       MI_A2, MI_F3, MI_E3, MI_A3, MI_Cs4, MY_E4, MI_A4, MI_Cs5,
+       MI_A2, MI_F3, MI_E3, MI_A3, MI_Cs4, MI_E4, MI_A4, MI_Cs5,
      MI_Gs2, MI_As2, MI_Ds3, MI_F4, MI_E4, MI_Gs4, MI_B4, MI_E5, MI_Ds4
     ),
 

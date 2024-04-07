@@ -22,8 +22,6 @@
 #   define SPLIT_HAND_MATRIX_GRID_LOW_IS_LEFT
 #endif
 
-#define SPLIT_USB_DETECT
-
 #ifdef RGB_MATRIX_ENABLE
 //  for all fingers used at once.
 #   define LED_HITS_TO_REMEMBER 10
@@ -77,7 +75,6 @@
 // #define ENABLE_RGB_MATRIX_RAINDROPS
 // #define ENABLE_RGB_MATRIX_JELLYBEAN_RAINDROPS
 //  Recommended not to use these.
-#       ifndef VIA_ENABLE
 #           define ENABLE_RGB_MATRIX_GRADIENT_LEFT_RIGHT
 #           define ENABLE_RGB_MATRIX_BAND_VAL
 #           define ENABLE_RGB_MATRIX_BAND_PINWHEEL_VAL
